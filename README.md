@@ -1,1 +1,1 @@
-# Java__Project__Trunk
+Main Repository for JAVA Project based on PROFIBUS Investigation.
