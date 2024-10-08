@@ -4,6 +4,9 @@ import java.net.DatagramSocket;
 import java.net.SocketTimeoutException;
 
 public class UDPServer {
+    /* Open Terminal type 'javac UDPClient.java
+        Run UDPServer.java
+        Terminal, type 'java UDPClient' */
     public static void main(String[] args) throws IOException {
         DatagramSocket socket = new DatagramSocket(3000);
         byte[] buffer = new byte[1024];

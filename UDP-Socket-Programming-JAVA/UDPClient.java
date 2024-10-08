@@ -5,6 +5,9 @@ import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 
 public class UDPClient {
+    /* Open Terminal type 'javac UDPClient.java
+        Run UDPServer.java
+        Terminal, type 'java UDPClient' */
     public static void main(String[] args) throws IOException {
         DatagramSocket socket = new DatagramSocket();
         String message = "Hello Server";
