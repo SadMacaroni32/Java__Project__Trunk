@@ -7,7 +7,7 @@ import java.net.SocketTimeoutException;
 public class PROFIClient {
     public static void main(String[] args) throws IOException {
         DatagramSocket socket = new DatagramSocket();
-        String message = "SD2:Hello Server"; // Example of a SD2 message
+        String message = "SD2:Hello Server"; 
         byte[] buffer = message.getBytes();
         InetAddress address = InetAddress.getByName("localhost");
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, 3000);
