@@ -1,6 +1,13 @@
+package Server;
+
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
+
+import Server.utils.ClientInfo;
+import Server.utils.DecryptVerify;
+import Server.utils.ShutdownHandler;
+import Server.utils.BroadcastMessage;  // Ensure this is imported
 
 public class PROFIServerUDPChat {
 
@@ -19,7 +26,11 @@ public class PROFIServerUDPChat {
             // Register a shutdown hook for graceful shutdown
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 System.out.println("\nShutdown signal received. Initiating graceful shutdown...");
-                initiateGracefulShutdown(socket, 5000); // 5-second delay
+                try {
+                    ShutdownHandler.initiateGracefulShutdown(socket, 5000, clients, true, running); // Pass running here
+                } catch (IOException e) {
+                    System.err.println("Error during shutdown: " + e.getMessage());
+                }
             }));
 
             System.out.println("Chat server is running on port " + serverPort + "..");
@@ -41,14 +52,14 @@ public class PROFIServerUDPChat {
                     // Handle the decryptAndVerify method call
                     String decryptedMessage = null;
                     try {
-                        decryptedMessage = decryptAndVerify(receivedData); // Pass byte array
+                        decryptedMessage = DecryptVerify.decryptAndVerify(receivedData); // Pass byte array
                     } catch (Exception e) {
                         System.err.println("Error decrypting message: " + e.getMessage());
                     }
 
                     if (decryptedMessage != null) {
                         String message = "Client [" + clInetAddress + ":" + clientPort + "]: " + decryptedMessage;
-                        broadcastMessage(message, socket);
+                        BroadcastMessage.broadcastMessage(message, socket, clients);  // Make sure to pass clients to broadcastMessage method
                     } else {
                         System.out.println("Invalid message received from " + clientInfo);
                     }
@@ -70,84 +81,6 @@ public class PROFIServerUDPChat {
             System.err.println("Error initializing server: " + e.getMessage());
         } catch (NumberFormatException e) {
             System.err.println("Invalid number format for port or buffer size.");
-        }
-    }
-
-    private static void initiateGracefulShutdown(DatagramSocket socket, int delayMillis) {
-        try {
-            // Inform the clients that the server is shutting down (optional step)
-            broadcastMessage("Server is shutting down. Goodbye!", socket);
-
-            // Delay for graceful shutdown
-            for (int i = delayMillis / 1000; i > 0; i--) {
-                System.out.println("Shutting down in " + i + " seconds...");
-                Thread.sleep(1000);
-            }
-        } catch (IOException | InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.out.println("Graceful shutdown interrupted.");
-        } finally {
-            running = false;
-            if (socket != null && !socket.isClosed()) {
-                socket.close();
-            }
-            System.out.println("Server process terminated.");
-        }
-    }
-
-    private static void broadcastMessage(String message, DatagramSocket socket) throws IOException {
-        byte[] messageBytes = message.getBytes();
-
-        for (ClientInfo client : clients) {
-            DatagramPacket packet = new DatagramPacket(messageBytes, messageBytes.length, client.getAddress(), client.getPort());
-            socket.send(packet);
-        }
-    }
-
-    private static String decryptAndVerify(byte[] data) throws Exception {
-        byte[] encryptedMessage = Arrays.copyOfRange(data, 0, data.length - 32); // Assuming HMAC is 32 bytes
-        byte[] receivedHmac = Arrays.copyOfRange(data, data.length - 32, data.length);
-
-        if (!HMACUtil.verifyHMAC(encryptedMessage, receivedHmac)) {
-            return null; // Invalid HMAC, discard the message
-        }
-
-        return EncryptionUtil.decrypt(encryptedMessage);
-    }
-
-    private static class ClientInfo {
-        private final InetAddress address;
-        private final int port;
-
-        public ClientInfo(InetAddress address, int port) {
-            this.address = address;
-            this.port = port;
-        }
-
-        public InetAddress getAddress() {
-            return address;
-        }
-
-        public int getPort() {
-            return port;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-            ClientInfo that = (ClientInfo) obj;
-            return port == that.port && Objects.equals(address, that.address);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(address, port);
-        }
-
-        @Override
-        public String toString() {
-            return address.toString() + ":" + port;
         }
     }
 }

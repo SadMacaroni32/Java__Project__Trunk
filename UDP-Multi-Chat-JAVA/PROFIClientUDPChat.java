@@ -4,8 +4,11 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Scanner;
 
+import Server.security.EncryptionUtil;
+import Server.security.HMACUtil;
+
 public class PROFIClientUDPChat {
-    private static DatagramSocket socket; // Declare socket as a static member variable
+    private static DatagramSocket socket;
     private static final int BUFFER_SIZE = 1024;
 
     public static void main(String[] args) {
@@ -13,17 +16,15 @@ public class PROFIClientUDPChat {
         int serverPort = (args.length > 1) ? Integer.parseInt(args[1]) : 3000;
 
         try {
-            socket = new DatagramSocket(); // Initialize the socket here
+            socket = new DatagramSocket(); 
             InetAddress serverAddress = InetAddress.getByName(serverAddressStr);
             byte[] buffer = new byte[BUFFER_SIZE];
 
             System.out.println("Connected to chat server. Type your messages below:");
 
-            // Start a thread to receive messages
             Thread receiveThread = new Thread(() -> receiveMessages(buffer));
             receiveThread.start();
 
-            // Main thread for sending messages
             sendMessages(serverAddress, serverPort);
 
         } catch (IOException e) {
@@ -88,7 +89,6 @@ public class PROFIClientUDPChat {
         }
     }
     
-
     private static void closeSocket() {
         if (socket != null && !socket.isClosed()) {
             socket.close();

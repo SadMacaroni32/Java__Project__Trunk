@@ -1,3 +1,4 @@
+package Server.security;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Arrays;
