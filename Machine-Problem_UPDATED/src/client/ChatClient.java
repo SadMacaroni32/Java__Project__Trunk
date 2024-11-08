@@ -53,6 +53,7 @@ public class ChatClient {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    
                 }
             }
         }).start();

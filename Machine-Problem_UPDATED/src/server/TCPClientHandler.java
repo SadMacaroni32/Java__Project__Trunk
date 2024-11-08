@@ -51,17 +51,16 @@ class TCPClientHandlerThread implements Runnable {
     @Override
     public void run() {
         try {
-            clientName = in.readLine();  // Receive client name
+            clientName = in.readLine();
             System.out.println(clientName + " connected from " + clientAddress.getHostAddress());
 
             String message;
             while ((message = in.readLine()) != null) {
                 String formattedMessage = clientName + "/" + clientAddress.getHostAddress() + ": " + message;
-                System.out.println(formattedMessage);  // Print the message on the server
+                System.out.println(formattedMessage);
 
-                // Broadcast the message to all connected clients
                 for (TCPClientHandlerThread clientThread : clientThreads) {
-                    if (clientThread != this) {  // Don't send the message back to the sender
+                    if (clientThread != this) {
                         clientThread.sendMessage(formattedMessage);
                     }
                 }
@@ -69,7 +68,6 @@ class TCPClientHandlerThread implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            // Remove client from the list when they disconnect
             clientThreads.remove(this);
             try {
                 clientSocket.close();

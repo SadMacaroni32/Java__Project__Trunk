@@ -28,11 +28,11 @@ public class ChatServer {
 
     private static void startTCPServer(int port) {
         TCPClientHandler tcpHandler = new TCPClientHandler(port);
-        new Thread(tcpHandler).start();  // Ensure it runs on a separate thread.
+        new Thread(tcpHandler).start();
     }
 
     private static void startUDPServer(int port) {
         UDPServerHandler udpHandler = new UDPServerHandler(port);
-        new Thread(udpHandler).start();  // Ensure it runs on a separate thread.
+        new Thread(udpHandler).start();
     }
 }
